@@ -230,13 +230,13 @@ resource "azurerm_key_vault_secret" "keys" {
 # Private Link for Keyvault - Default is "false" 
 #---------------------------------------------------------
 data "azurerm_virtual_network" "vnet01" {
-  count               = var.enable_private_endpoint && var.existing_vnet_id == null ? 1 : 0
+  count               = var.enable_private_endpoint && var.create_vnet ? 1 : 0
   name                = var.virtual_network_name
   resource_group_name = local.resource_group_name
 }
 
 resource "azurerm_subnet" "snet-ep" {
-  count                                     = var.enable_private_endpoint && var.existing_subnet_id == null ? 1 : 0
+  count                                     = var.enable_private_endpoint && var.create_subnet == null ? 1 : 0
   name                                      = "snet-endpoint-${local.location}"
   resource_group_name                       = var.existing_vnet_id == null ? data.azurerm_virtual_network.vnet01.0.resource_group_name : element(split("/", var.existing_vnet_id), 4)
   virtual_network_name                      = var.existing_vnet_id == null ? data.azurerm_virtual_network.vnet01.0.name : element(split("/", var.existing_vnet_id), 8)

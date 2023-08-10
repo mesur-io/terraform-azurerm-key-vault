@@ -105,6 +105,16 @@ variable "virtual_network_name" {
   default     = ""
 }
 
+variable "create_vnet" {
+  description = "Whether to create virtual network or use existing one. Defaults to false."
+  default     = false
+}
+
+variable "create_subnet" {
+  description = "Whether to create subnet or use existing one. Defaults to false."
+  default     = false
+}
+
 variable "existing_vnet_id" {
   description = "The resoruce id of existing Virtual network"
   default     = null
