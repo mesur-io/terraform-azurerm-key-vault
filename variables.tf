@@ -95,6 +95,11 @@ variable "enable_private_endpoint" {
   default     = false
 }
 
+variable "public_network_access_enabled" {
+  description = "Whether or not public network access is allowed for the container registry. Defaults to true."
+  default     = true
+}
+
 variable "virtual_network_name" {
   description = "The name of the virtual network"
   default     = ""
