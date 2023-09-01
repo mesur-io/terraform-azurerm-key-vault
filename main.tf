@@ -82,17 +82,6 @@ locals {
       storage_permissions     = distinct(flatten(v[*].storage_permissions))
     }
   ]
-
-  service_principal_object_id = data.azurerm_client_config.current.object_id
-
-  self_permissions = {
-    object_id               = local.service_principal_object_id
-    tenant_id               = data.azurerm_client_config.current.tenant_id
-    key_permissions         = ["Create", "Delete", "Get", "GetRotationPolicy", "SetRotationPolicy", "Backup", "Decrypt", "Encrypt", "Import", "List", "Purge", "Recover", "Restore", "Sign", "Update", "Verify"]
-    secret_permissions      = ["Backup", "Delete", "Get", "List", "Purge", "Recover", "Restore", "Set"]
-    certificate_permissions = ["Backup", "Create", "Delete", "DeleteIssuers", "Get", "GetIssuers", "Import", "List", "ListIssuers", "ManageContacts", "ManageIssuers", "Purge", "Recover", "Restore", "SetIssuers", "Update"]
-    storage_permissions     = ["Backup", "Delete", "DeleteSAS", "Get", "GetSAS", "List", "ListSAS", "Purge", "Recover", "RegenerateKey", "Restore", "Set", "SetSAS", "Update"]
-  }
 }
 
 data "azuread_group" "adgrp" {
@@ -157,18 +146,6 @@ resource "azurerm_key_vault" "main" {
 
   dynamic "access_policy" {
     for_each = local.combined_access_policies
-    content {
-      tenant_id               = data.azurerm_client_config.current.tenant_id
-      object_id               = access_policy.value.object_id
-      certificate_permissions = access_policy.value.certificate_permissions
-      key_permissions         = access_policy.value.key_permissions
-      secret_permissions      = access_policy.value.secret_permissions
-      storage_permissions     = access_policy.value.storage_permissions
-    }
-  }
-
-  dynamic "access_policy" {
-    for_each = local.service_principal_object_id != "" ? [local.self_permissions] : []
     content {
       tenant_id               = data.azurerm_client_config.current.tenant_id
       object_id               = access_policy.value.object_id
