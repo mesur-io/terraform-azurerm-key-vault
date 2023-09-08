@@ -144,18 +144,6 @@ resource "azurerm_key_vault" "main" {
     }
   }
 
-  dynamic "access_policy" {
-    for_each = local.combined_access_policies
-    content {
-      tenant_id               = data.azurerm_client_config.current.tenant_id
-      object_id               = access_policy.value.object_id
-      certificate_permissions = access_policy.value.certificate_permissions
-      key_permissions         = access_policy.value.key_permissions
-      secret_permissions      = access_policy.value.secret_permissions
-      storage_permissions     = access_policy.value.storage_permissions
-    }
-  }
-
   dynamic "contact" {
     for_each = var.certificate_contacts
     content {
@@ -170,6 +158,20 @@ resource "azurerm_key_vault" "main" {
       tags,
     ]
   }
+}
+
+# Key vault policies must be external in order to prevent flapping with other
+# policies that may be defined externally.
+resource "azurerm_key_vault_access_policy" "this" {
+  for_each = { for i, v in local.combined_access_policies : i => v }
+
+  key_vault_id            = azurerm_key_vault.main.id
+  tenant_id               = data.azurerm_client_config.current.tenant_id
+  object_id               = each.value.object_id
+  certificate_permissions = each.value.certificate_permissions
+  key_permissions         = each.value.key_permissions
+  secret_permissions      = each.value.secret_permissions
+  storage_permissions     = each.value.storage_permissions
 }
 
 #-----------------------------------------------------------------------------------
